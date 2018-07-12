@@ -1,0 +1,18 @@
+[
+  {
+    "name": "ramda@0.23.0",
+    "url": "scott.sauyet.com",
+    "repository": "https://github.com/ramda/ramda",
+    "publisher": "Scott Sauyet",
+    "email": "scott@sauyet.com",
+    "licenses": "MIT"
+  },
+  {
+    "name": "react-native-licenses-list@1.0.0",
+    "url": "https://www.calvium.com",
+    "repository": "https://github.com/NunoCalvium/react-native-licenses-list",
+    "publisher": "Nuno Veloso",
+    "email": "nuno@calvium.com",
+    "licenses": "MIT"
+  }
+]
