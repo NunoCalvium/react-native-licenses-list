@@ -2,7 +2,9 @@
 import React, {PureComponent} from 'react';
 import {StyleSheet, Text, View, TouchableOpacity, Linking} from 'react-native';
 
+import type {TextStyleProp} from 'react-native/Libraries/StyleSheet/StyleSheet';
 import type {LicenseType} from './LicensesList'
+
 import {dimensions} from './theme'
 
 const styles = StyleSheet.create({
@@ -10,15 +12,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginVertical: dimensions.itemMarginVertical,
   },
-  header: {
-
-  },
   url: {
     textDecorationLine: 'underline',
   },
-  contact: {
-
-  }
 });
 
 const urlSlop = {
@@ -30,39 +26,39 @@ const urlSlop = {
 
 type PropsType = {
   data: LicenseType,
-  textStyle?: any, // TODO: set styles type
+  textStyle?: TextStyleProp,
 };
 
 class LicensesItem extends PureComponent<PropsType> {
   onUrlPress = (url: string) => Linking.openURL(url).catch(error => console.log(`Error loading webview: ${error}`));
 
-  renderHeader = (name: string, licenses: ?string) => (
-    <Text style={[styles.header, this.props.textStyle]}>
+  renderTitle = (name: string, licenses: ?string) => (
+    <Text style={this.props.textStyle}>
       {`${name}${licenses ? ` | ${licenses}` : ''}`}
     </Text>
   );
 
   renderURL = (url: ?string, repository: ?string) => {
-    const urlValue = url || repository;
-    if (!urlValue) return null;
+    const urlText = url || repository;
+    if (!urlText) return null;
     return (
-      <TouchableOpacity hitSlop={urlSlop} onPress={() => this.onUrlPress(urlValue)}>
+      <TouchableOpacity hitSlop={urlSlop} onPress={this.onUrlPress(urlText)}>
         <Text style={[styles.url, this.props.textStyle]}>
-          {urlValue}
+          {urlText}
         </Text>
       </TouchableOpacity>
     );
   };
 
   renderContact = (email: ?string, publisher: ?string) => {
-    const text = email
+    const contactText = email
       ? publisher
         ? `${publisher} (${email})`
         : email
       : publisher;
-    return text && (
-      <Text style={[styles.contact, this.props.textStyle]}>
-        {text}
+    return contactText && (
+      <Text style={this.props.textStyle}>
+        {contactText}
       </Text>
     );
   };
@@ -71,7 +67,7 @@ class LicensesItem extends PureComponent<PropsType> {
     const {data} = this.props;
     return (
       <View style={styles.container}>
-        {this.renderHeader(data.name, data.licenses)}
+        {this.renderTitle(data.name, data.licenses)}
         {this.renderURL(data.url, data.repository)}
         {this.renderContact(data.email, data.publisher)}
       </View>

@@ -3,6 +3,8 @@ import React, {PureComponent} from 'react';
 import {StyleSheet, View, SectionList, Text, ActivityIndicator} from 'react-native';
 import R from 'ramda';
 
+import type {TextStyleProp, ViewStyleProp} from 'react-native/Libraries/StyleSheet/StyleSheet';
+
 import LicensesItem from './LicensesItem';
 import {colors, dimensions} from './theme';
 
@@ -11,18 +13,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sectionContainer: {
-    backgroundColor: colors.sectionBackground,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     padding: dimensions.sectionPadding,
+    backgroundColor: colors.sectionBackground,
   },
   sectionText: {
     color: colors.sectionText,
   },
   spinner: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingTop: dimensions.spinnerPaddingTop,
   },
 });
@@ -40,15 +42,13 @@ export type LicenseType = {
 type LicensesGroupType = {
   groupTitle: string,
   data: Array<LicenseType>,
-  renderItem?: any, // TODO: set function type
 };
 
 type PropsType = {
-  showHeaders: boolean,
   extraLicenses?: Array<LicensesGroupType>,
-  textStyle?: any, // TODO: set styles type
-  sectionStyle?: any, // TODO: set styles type
-  sectionTextStyle?: any, // TODO: set styles type
+  sectionStyle?: ViewStyleProp,
+  sectionTextStyle?: TextStyleProp,
+  licenseTextStyle?: TextStyleProp,
 };
 
 type StateType = {
@@ -56,24 +56,16 @@ type StateType = {
 };
 
 class LicensesList extends PureComponent<PropsType, StateType> {
-  static defaultProps = {
-    showHeaders: true,
-  };
-
-  constructor(props: PropsType) {
-    super(props);
-
-    this.state = {
-      licensesData: this.initLicensesData(props.extraLicenses),
-    };
-  }
 
   componentDidMount() {
+    this.state = {
+      licensesData: this.initLicensesData(this.props.extraLicenses),
+    };
+
     // Small delay to make navigation smoother as processing the list of software is a significant amount of time
     setTimeout(() => {
-      const licensesData = this.mergeNpmLicenses(this.loadNpmLicenses());
       this.setState({
-        licensesData,
+        licensesData: this.mergeNpmLicenses(),
       });
     }, 1000);
   }
@@ -108,10 +100,14 @@ class LicensesList extends PureComponent<PropsType, StateType> {
     return npmLibsList
   }
 
-  mergeNpmLicenses(data: Array<LicenseType>) {
+  mergeNpmLicenses() {
+    const npmLicenses: Array<LicenseType> = this.loadNpmLicenses();
     return this.state.licensesData.map((licenseGroup: LicensesGroupType) => {
         if (licenseGroup.groupTitle === 'Licenses') {
-          const updatedLicenseGroup = licenseGroup;
+          const updatedLicenseGroup = {
+            ...licenseGroup,
+            data: npmLicenses
+          };
           updatedLicenseGroup.data = data;
           return updatedLicenseGroup;
         }
@@ -121,6 +117,7 @@ class LicensesList extends PureComponent<PropsType, StateType> {
   }
 
   addRender(array: Array<LicensesGroupType>) {
+    console.log(array);
     return array.map((licenseGroup) => !R.has('renderItem')(licenseGroup)
       ? R.assoc('renderItem', this.renderItem, licenseGroup)
       : licenseGroup
@@ -142,7 +139,7 @@ class LicensesList extends PureComponent<PropsType, StateType> {
 
   renderItem = ({item}: {item: LicenseType}) => item.licenseGroupIsLoading
     ? this.renderLoadingSpinner()
-    : <LicensesItem data={item} textStyle={this.props.textStyle}/>;
+    : <LicensesItem data={item} textStyle={this.props.licenseTextStyle}/>;
 
   renderSectionHeader = ({section}: {section: LicensesGroupType}) => (
     <View style={[styles.sectionContainer, this.props.sectionStyle]} key={`section${section.groupTitle}`}>
@@ -156,7 +153,7 @@ class LicensesList extends PureComponent<PropsType, StateType> {
     return (
       <View style={styles.container}>
         <SectionList
-          renderSectionHeader={this.props.showHeaders ? this.renderSectionHeader : () => null}
+          renderSectionHeader={this.renderSectionHeader}
           keyExtractor={this.keyExtractor}
           sections={this.state.licensesData}
           stickySectionHeadersEnabled={true}
