@@ -56,6 +56,12 @@ type StateType = {
 };
 
 class LicensesList extends PureComponent<PropsType, StateType> {
+  constructor(props) {
+    super(props);
+    this.state ={
+      licensesData: [],
+    };
+  }
 
   componentDidMount() {
     this.state = {
@@ -84,10 +90,12 @@ class LicensesList extends PureComponent<PropsType, StateType> {
   }
 
   loadNpmLicenses() {
-    const npmLibs = require('../licenses.json');
+    const npmLibs = require('../../../licenses.json');
     // TODO: Test this!
-    if (!npmLibs) console.warn('Failed to load licenses.json. Please run: npm run create-licenses-report');
-
+    if (!npmLibs) {
+      console.warn('Failed to load licenses.json. Please run: npm run create-licenses-report');
+      return [];
+    }
     const npmLibsList = R.pipe(
       // Extract version from name
       R.map(item => ({...item, name: item.name.substr(0, R.lastIndexOf('@', item.name))})),
@@ -108,7 +116,6 @@ class LicensesList extends PureComponent<PropsType, StateType> {
             ...licenseGroup,
             data: npmLicenses
           };
-          updatedLicenseGroup.data = data;
           return updatedLicenseGroup;
         }
         return licenseGroup;
@@ -127,7 +134,7 @@ class LicensesList extends PureComponent<PropsType, StateType> {
   keyExtractor = (item: LicenseType) => item.name;
 
   getProjectName = () => {
-    const packageData = require('../package.json');
+    const packageData = require('../../../package.json');
     return packageData.name
   };
 
@@ -164,4 +171,3 @@ class LicensesList extends PureComponent<PropsType, StateType> {
 }
 
 export default LicensesList;
-
