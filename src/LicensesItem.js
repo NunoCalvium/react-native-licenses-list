@@ -40,9 +40,10 @@ class LicensesItem extends PureComponent<PropsType> {
 
   renderURL = (url: ?string, repository: ?string) => {
     const urlText = url || repository;
+    const handleUrlPress = () => this.onUrlPress(urlText);
     if (!urlText) return null;
     return (
-      <TouchableOpacity hitSlop={urlSlop} onPress={this.onUrlPress(urlText)}>
+      <TouchableOpacity hitSlop={urlSlop} onPress={handleUrlPress}>
         <Text style={[styles.url, this.props.textStyle]}>
           {urlText}
         </Text>
