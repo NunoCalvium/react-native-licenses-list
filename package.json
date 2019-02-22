@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/NunoCalvium/react-native-licenses-list#readme",
   "dependencies": {
+    "license-checker": "^25.0.1",
     "ramda": "^0.23.0"
   },
   "peerDependencies": {
